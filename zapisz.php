@@ -3,25 +3,38 @@ require 'config.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
-    // Pobieramy dane z formularza
     $pracownik = isset($_POST['pracownik']) ? trim($_POST['pracownik']) : '';
     $stacja = isset($_POST['stacja']) ? trim($_POST['stacja']) : '';
     
-    // Obsługa produktów (łączy zaznaczone w jeden tekst po przecinku)
-    if (isset($_POST['produkty']) && is_array($_POST['produkty'])) {
-        $wybrane_produkty = implode(", ", $_POST['produkty']);
-    } else {
-        $wybrane_produkty = "Brak (nie zaznaczono nic)";
+    // --- NOWA LOGIKA DLA ILOŚCI ---
+    $lista_zamowien = [];
+    
+    if (isset($_POST['ilosc']) && is_array($_POST['ilosc'])) {
+        foreach ($_POST['ilosc'] as $nazwa_produktu => $ilosc) {
+            // Zamieniamy na liczbę całkowitą
+            $ilosc = (int)$ilosc;
+            // Jeśli ktoś wpisał więcej niż 0, dodajemy do listy
+            if ($ilosc > 0) {
+                // Usuwamy ewentualne znaki specjalne z nazwy produktu dla bezpieczeństwa
+                $nazwa_czysta = htmlspecialchars($nazwa_produktu);
+                $lista_zamowien[] = "{$nazwa_czysta} ({$ilosc} szt)";
+            }
+        }
     }
 
-    // Walidacja - czy pola nie są puste
+    // Zamieniamy tablicę na jeden długi tekst po przecinku
+    if (count($lista_zamowien) > 0) {
+        $wybrane_produkty = implode(", ", $lista_zamowien);
+    } else {
+        $wybrane_produkty = "PUSTE ZAMÓWIENIE (wpisano same zera)";
+    }
+    // -----------------------------
+
     if (!empty($pracownik) && !empty($stacja)) {
         try {
-            // Zapytanie SQL wstawiające dane
             $stmt = $pdo->prepare("INSERT INTO zamowienia (imie_nazwisko, stacja, produkty) VALUES (?, ?, ?)");
             $stmt->execute([$pracownik, $stacja, $wybrane_produkty]);
             
-            // Sukces - wyświetlamy komunikat
             ?>
             <!DOCTYPE html>
             <html lang="pl">
@@ -39,7 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <body>
                 <div class="box">
                     <h1>✅ Sukces!</h1>
-                    <p>Twoje zamówienie zostało wysłane do centrali.</p>
+                    <p>Twoje zamówienie zostało wysłane.</p>
                     <a href="index.php">Wróć do strony głównej</a>
                 </div>
             </body>
@@ -53,7 +66,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "Błąd: Nie podano imienia lub stacji. <a href='index.php'>Wróć</a>";
     }
 } else {
-    // Jeśli ktoś otworzy ten plik bezpośrednio, a nie przez formularz
     header("Location: index.php");
 }
 ?>
