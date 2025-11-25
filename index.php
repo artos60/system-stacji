@@ -1,5 +1,5 @@
 <?php
-require 'config.php'; // Dołączenie konfiguracji (jeśli potrzebne)
+require 'config.php'; 
 
 // --- KONFIGURACJA PRODUKTÓW ---
 $produkty_lista = [
@@ -45,20 +45,16 @@ if (file_exists("stacje.csv")) {
         label { display: block; margin-bottom: 8px; font-weight: bold; }
         select, input[type="text"] { width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
         
-        /* Styl dla listy produktów z ilościami */
-        .product-item { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            padding: 10px; 
-            border-bottom: 1px solid #eee; 
-        }
+        .product-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
         .product-item:last-child { border-bottom: none; }
         .product-name { flex-grow: 1; margin-right: 10px; }
         .product-qty { width: 80px !important; text-align: center; padding: 8px !important; }
 
         button { background-color: #28a745; color: white; padding: 15px; border: none; font-size: 18px; cursor: pointer; width: 100%; border-radius: 4px; margin-top: 20px; }
         button:hover { background-color: #218838; }
+        
+        .footer-link { text-align: center; margin-top: 30px; }
+        .footer-link a { color: #999; text-decoration: none; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -99,6 +95,10 @@ if (file_exists("stacje.csv")) {
 
         <button type="submit">WYŚLIJ ZAMÓWIENIE</button>
     </form>
+
+    <div class="footer-link">
+        <a href="admin.php">Panel Szefa (Logowanie)</a>
+    </div>
 </div>
 
 </body>
