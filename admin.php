@@ -3,7 +3,35 @@ require 'config.php';
 session_start();
 
 // --- KONFIGURACJA ---
-$haslo_dostepu = "szef123"; // ZMIEŃ TO HASŁO!
+$haslo_dostepu = "szef123"; // Pamiętaj o zmianie hasła!
+
+// --- LOGIKA GENEROWANIA XML (Musi być przed HTML) ---
+if (isset($_GET['xml']) && isset($_SESSION['admin_logged']) && $_SESSION['admin_logged'] === true) {
+    $id = (int)$_GET['xml'];
+    
+    // Pobierz dane zamówienia
+    $stmt = $pdo->prepare("SELECT * FROM zamowienia WHERE id = ?");
+    $stmt->execute([$id]);
+    $z = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($z) {
+        // Ustaw nagłówki, żeby przeglądarka pobrała plik
+        header('Content-Type: text/xml');
+        header('Content-Disposition: attachment; filename="zamowienie_' . $id . '.xml"');
+        
+        // Generuj XML
+        echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+        echo "<zamowienie>\n";
+        echo "  <id>{$z['id']}</id>\n";
+        echo "  <data>{$z['data_zamowienia']}</data>\n";
+        echo "  <pracownik>" . htmlspecialchars($z['imie_nazwisko']) . "</pracownik>\n";
+        echo "  <stacja>" . htmlspecialchars($z['stacja']) . "</stacja>\n";
+        echo "  <produkty>" . htmlspecialchars($z['produkty']) . "</produkty>\n";
+        echo "  <status>{$z['status']}</status>\n";
+        echo "</zamowienie>";
+        exit; // Ważne: Zatrzymujemy skrypt, żeby nie dodał HTML na końcu XML
+    }
+}
 
 // --- LOGOWANIE ---
 if (isset($_POST['login'])) {
@@ -20,7 +48,7 @@ if (isset($_GET['logout'])) {
     exit;
 }
 
-// Jeśli nie zalogowany, pokaż formularz logowania
+// Formularz logowania
 if (!isset($_SESSION['admin_logged']) || $_SESSION['admin_logged'] !== true) {
 ?>
 <!DOCTYPE html>
@@ -51,7 +79,7 @@ if (!isset($_SESSION['admin_logged']) || $_SESSION['admin_logged'] !== true) {
     exit;
 }
 
-// --- ZMIANA STATUSU (Realizacja) ---
+// --- ZMIANA STATUSU (Realizacja i Cofanie) ---
 if (isset($_GET['zrealizuj'])) {
     $id = (int)$_GET['zrealizuj'];
     $stmt = $pdo->prepare("UPDATE zamowienia SET status = 'zrealizowane' WHERE id = ?");
@@ -60,8 +88,15 @@ if (isset($_GET['zrealizuj'])) {
     exit;
 }
 
+if (isset($_GET['przywroc'])) {
+    $id = (int)$_GET['przywroc'];
+    $stmt = $pdo->prepare("UPDATE zamowienia SET status = 'nowe' WHERE id = ?");
+    $stmt->execute([$id]);
+    header("Location: admin.php");
+    exit;
+}
+
 // --- POBIERANIE DANYCH ---
-// Pobieramy 100 ostatnich zamówień, najnowsze na górze
 $stmt = $pdo->query("SELECT * FROM zamowienia ORDER BY id DESC LIMIT 100");
 $zamowienia = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -77,14 +112,17 @@ $zamowienia = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .btn-logout { background: #dc3545; color: white; text-decoration: none; padding: 8px 15px; border-radius: 4px; }
         table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; vertical-align: middle; }
         th { background-color: #343a40; color: white; }
         tr:hover { background-color: #f1f1f1; }
-        .status-nowe { background-color: #e8f5e9; font-weight: bold; color: #2e7d32; }
-        .status-zrealizowane { color: #888; text-decoration: line-through; }
-        .btn-ok { background: #28a745; color: white; text-decoration: none; padding: 5px 10px; border-radius: 3px; font-size: 12px; }
         
-        /* RWD dla tabeli na telefonach */
+        .status-nowe { background-color: #e8f5e9; font-weight: bold; color: #2e7d32; }
+        .status-zrealizowane { color: #888; background-color: #f9f9f9; }
+        
+        .btn-ok { background: #28a745; color: white; text-decoration: none; padding: 5px 10px; border-radius: 3px; font-size: 12px; display: inline-block; margin-right: 5px; }
+        .btn-undo { background: #ffc107; color: #333; text-decoration: none; padding: 5px 10px; border-radius: 3px; font-size: 12px; display: inline-block; margin-right: 5px; }
+        .btn-xml { background: #17a2b8; color: white; text-decoration: none; padding: 5px 10px; border-radius: 3px; font-size: 12px; display: inline-block; }
+        
         @media (max-width: 600px) {
             table, thead, tbody, th, td, tr { display: block; }
             thead tr { position: absolute; top: -9999px; left: -9999px; }
@@ -122,10 +160,13 @@ $zamowienia = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <td data-label="Stacja"><?php echo htmlspecialchars($z['stacja']); ?></td>
                     <td data-label="Produkty"><?php echo htmlspecialchars($z['produkty']); ?></td>
                     <td data-label="Akcja">
+                        <a href="admin.php?xml=<?php echo $z['id']; ?>" class="btn-xml" title="Pobierz XML">XML</a>
+
                         <?php if ($z['status'] == 'nowe'): ?>
-                            <a href="admin.php?zrealizuj=<?php echo $z['id']; ?>" class="btn-ok">✓ Oznacz jako gotowe</a>
+                            <a href="admin.php?zrealizuj=<?php echo $z['id']; ?>" class="btn-ok">✓ Gotowe</a>
                         <?php else: ?>
-                            Zrobione
+                            <a href="admin.php?przywroc=<?php echo $z['id']; ?>" class="btn-undo">↩ Cofnij</a>
+                            <span style="font-size: 12px; color: #aaa;">(Zrobione)</span>
                         <?php endif; ?>
                     </td>
                 </tr>
