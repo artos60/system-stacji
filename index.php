@@ -2,7 +2,6 @@
 require 'config.php'; 
 
 // --- KONFIGURACJA PRODUKTÓW ---
-// Lista pobrana z Twojej strony (nazwy + opisy)
 $produkty_lista = [
     [
         "nazwa" => "TEC 2000 Engine Flush", 
@@ -30,11 +29,11 @@ $produkty_lista = [
     ],
     [
         "nazwa" => "TEC 2000 Diesel Injector Cleaner", 
-        "opis" => "Odblokowywanie i czyszczenie wtryskiwaczy - Diesel (trzeba pominąć zbiornik paliwa)"
+        "opis" => "Odblokowywanie i czyszczenie wtryskiwaczy - Diesel (pominąć zbiornik paliwa)"
     ],
     [
         "nazwa" => "TEC 2000 Fuel Injector Cleaner", 
-        "opis" => "Odblokowywanie i czyszczenie wtryskiwaczy - Benzyna (trzeba pominąć zbiornik paliwa)"
+        "opis" => "Odblokowywanie i czyszczenie wtryskiwaczy - Benzyna (pominąć zbiornik paliwa)"
     ],
     [
         "nazwa" => "TEC 2000 Radiator Flush", 
@@ -42,24 +41,24 @@ $produkty_lista = [
     ],
     [
         "nazwa" => "TEC 2000 Radiator Stop Leak", 
-        "opis" => "Dodatek uszczelniający układ chłodzenia - można dolać do nowego płynu"
+        "opis" => "Dodatek uszczelniający układ chłodzenia"
     ],
-    // Duże opakowania 2.5L
+    // Duże opakowania
     [
         "nazwa" => "TEC 2000 Engine Flush 2.5L", 
         "opis" => "Płukanka silnika 2.5L (serwisowa)"
     ],
     [
         "nazwa" => "TEC 2000 Diesel System Cleaner 2.5L", 
-        "opis" => "Dodatek do paliwa - Diesel 2.5L (czyści wtryskiwacze i usuwa wodę)"
+        "opis" => "Dodatek do paliwa - Diesel 2.5L"
     ],
     [
         "nazwa" => "TEC 2000 Diesel Injector Flush 2.5L", 
-        "opis" => "Czyszczenie wtryskiwaczy maszyn budowlanych, rolniczych"
+        "opis" => "Czyszczenie wtryskiwaczy maszyn budowlanych/rolniczych"
     ]
 ];
 
-// Wczytywanie stacji z pliku CSV
+// Wczytywanie stacji
 $stacje = [];
 if (file_exists("stacje.csv")) {
     if (($handle = fopen("stacje.csv", "r")) !== FALSE) {
@@ -82,24 +81,23 @@ if (file_exists("stacje.csv")) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zamówienie Towaru - System Wewnętrzny</title>
     <style>
-        /* --- KOLORYSTYKA (Dark Mode + Limonka) --- */
+        /* --- KOLORYSTYKA --- */
         :root {
-            --accent-green: #a1d052; /* Limonkowy */
-            --bg-dark: #667180;      /* Szaro-niebieskie tło */
-            --bg-card: #57606e;      /* Ciemniejsza karta */
+            --accent-green: #a1d052; /* Limonka */
+            --bg-gray: #667180;      /* Szary, którego chciałeś wszędzie */
             --text-white: #ffffff;
-            --text-gray: #d0d0d0;    /* Kolor opisów */
+            --text-desc: #dcdcdc;    /* Lekko szary dla opisów */
         }
 
         body { 
             font-family: 'Oxygen', 'Segoe UI', sans-serif; 
             margin: 0; 
             padding: 0; 
-            background-color: var(--bg-dark); 
+            background-color: var(--bg-gray); 
             color: var(--text-white);
         }
 
-        /* --- NAGŁÓWEK --- */
+        /* --- NAGŁÓWEK (Musi być biały ze względu na loga JPG) --- */
         .header-bar {
             background-color: #ffffff;
             padding: 10px 20px;
@@ -118,16 +116,18 @@ if (file_exists("stacje.csv")) {
 
         /* --- KONTENER GŁÓWNY --- */
         .container { 
-            max-width: 700px; /* Trochę szerszy dla dłuższych opisów */
+            max-width: 700px;
             margin: 30px auto; 
             padding: 0 15px;
         }
 
+        /* Karta formularza - teraz w kolorze tła */
         .card {
-            background-color: var(--bg-card);
-            padding: 30px;
+            background-color: var(--bg-gray); /* ZMIANA NA SZARY */
+            padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            /* Subtelny cień, żeby odciąć kartę od tła strony, ale kolor ten sam */
+            box-shadow: 0 0 20px rgba(0,0,0,0.15); 
             border: 2px solid var(--accent-green);
         }
 
@@ -147,12 +147,13 @@ if (file_exists("stacje.csv")) {
         label { 
             display: block; 
             margin-bottom: 10px; 
-            font-weight: 600; 
+            font-weight: 700; 
             color: var(--text-white);
             font-size: 14px;
             text-transform: uppercase;
         }
         
+        /* Inputy i Selecty - SZARE TŁO */
         select, input[type="text"] { 
             width: 100%; 
             padding: 14px; 
@@ -160,18 +161,25 @@ if (file_exists("stacje.csv")) {
             border: 2px solid var(--accent-green);
             border-radius: 6px; 
             box-sizing: border-box; 
-            background-color: #ffffff; 
-            color: #333;
+            
+            background-color: var(--bg-gray); /* ZMIANA NA SZARY */
+            color: var(--text-white);         /* Biały tekst */
         }
         
+        /* Kolor placeholder (tekst podpowiedzi) */
+        ::placeholder {
+            color: #b0b0b0;
+            opacity: 1;
+        }
+
         select:focus, input:focus {
             outline: none;
-            box-shadow: 0 0 10px rgba(161, 208, 82, 0.5);
+            box-shadow: 0 0 10px rgba(161, 208, 82, 0.4);
         }
         
         /* --- LISTA PRODUKTÓW --- */
         .products-wrapper {
-            background: #ffffff;
+            background-color: var(--bg-gray); /* ZMIANA NA SZARY */
             border: 2px solid var(--accent-green);
             border-radius: 6px; 
             overflow: hidden;
@@ -182,12 +190,13 @@ if (file_exists("stacje.csv")) {
             justify-content: space-between; 
             align-items: center; 
             padding: 15px; 
-            border-bottom: 1px solid #ccc; 
-            color: #333;
+            /* Linia oddzielająca produkty - też limonkowa, bo na szarym słabo widać szarą */
+            border-bottom: 1px solid rgba(161, 208, 82, 0.3); 
+            color: var(--text-white);
         }
         
         .product-item:last-child { border-bottom: none; }
-        .product-item:hover { background-color: #f0f7e6; }
+        .product-item:hover { background-color: rgba(255,255,255,0.05); } /* Lekkie rozjaśnienie po najechaniu */
         
         .product-info {
             flex-grow: 1;
@@ -198,25 +207,28 @@ if (file_exists("stacje.csv")) {
             display: block;
             font-size: 16px; 
             font-weight: 700;
-            color: #000;
+            color: var(--text-white);
             margin-bottom: 4px;
         }
 
         .product-desc {
             display: block;
             font-size: 13px;
-            color: #555;
+            color: var(--text-desc); /* Jasnoszary opis */
             font-style: italic;
         }
         
+        /* Pole ilości */
         .product-qty { 
             width: 70px !important; 
             text-align: center; 
             padding: 10px !important; 
             border: 2px solid var(--accent-green) !important;
             font-weight: bold;
-            color: #333;
             font-size: 16px;
+            
+            background-color: var(--bg-gray); /* ZMIANA NA SZARY */
+            color: var(--text-white);         /* Biały tekst */
         }
 
         /* --- PRZYCISK --- */
@@ -244,14 +256,14 @@ if (file_exists("stacje.csv")) {
         }
         
         .footer-link { text-align: center; margin-top: 30px; margin-bottom: 50px;}
-        .footer-link a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 13px; font-weight: 500; }
+        .footer-link a { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 13px; font-weight: 500; }
         .footer-link a:hover { color: var(--accent-green); }
 
         /* RWD */
         @media (max-width: 480px) {
             .header-bar { padding: 10px; height: 70px; }
             .logo-img { height: 45px; } 
-            .card { padding: 15px; }
+            .card { padding: 15px; border-width: 1px; } /* Mniejsza ramka na tel */
             .product-item { align-items: flex-start; }
             .product-qty { margin-top: 5px; }
         }
