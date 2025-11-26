@@ -84,9 +84,9 @@ if (file_exists("stacje.csv")) {
         /* --- KOLORYSTYKA --- */
         :root {
             --accent-green: #a1d052; /* Limonka */
-            --bg-gray: #667180;      /* Szary, którego chciałeś wszędzie */
+            --bg-gray: #667180;      /* Główny kolor szary */
             --text-white: #ffffff;
-            --text-desc: #dcdcdc;    /* Lekko szary dla opisów */
+            --text-desc: #dcdcdc;
         }
 
         body { 
@@ -97,9 +97,9 @@ if (file_exists("stacje.csv")) {
             color: var(--text-white);
         }
 
-        /* --- NAGŁÓWEK (Musi być biały ze względu na loga JPG) --- */
+        /* --- NAGŁÓWEK --- */
         .header-bar {
-            background-color: #ffffff;
+            background-color: var(--bg-gray); /* ZMIANA: Tło szare jak reszta */
             padding: 10px 20px;
             display: flex;
             justify-content: space-between;
@@ -112,6 +112,8 @@ if (file_exists("stacje.csv")) {
             height: 60px;
             width: auto;
             object-fit: contain;
+            /* Opcjonalnie: zaokrąglenie rogów, żeby białe tło loga wyglądało jak "wizytówka" */
+            border-radius: 4px; 
         }
 
         /* --- KONTENER GŁÓWNY --- */
@@ -121,12 +123,10 @@ if (file_exists("stacje.csv")) {
             padding: 0 15px;
         }
 
-        /* Karta formularza - teraz w kolorze tła */
         .card {
-            background-color: var(--bg-gray); /* ZMIANA NA SZARY */
+            background-color: var(--bg-gray);
             padding: 20px;
             border-radius: 10px;
-            /* Subtelny cień, żeby odciąć kartę od tła strony, ale kolor ten sam */
             box-shadow: 0 0 20px rgba(0,0,0,0.15); 
             border: 2px solid var(--accent-green);
         }
@@ -153,7 +153,6 @@ if (file_exists("stacje.csv")) {
             text-transform: uppercase;
         }
         
-        /* Inputy i Selecty - SZARE TŁO */
         select, input[type="text"] { 
             width: 100%; 
             padding: 14px; 
@@ -162,11 +161,10 @@ if (file_exists("stacje.csv")) {
             border-radius: 6px; 
             box-sizing: border-box; 
             
-            background-color: var(--bg-gray); /* ZMIANA NA SZARY */
-            color: var(--text-white);         /* Biały tekst */
+            background-color: var(--bg-gray); 
+            color: var(--text-white);
         }
         
-        /* Kolor placeholder (tekst podpowiedzi) */
         ::placeholder {
             color: #b0b0b0;
             opacity: 1;
@@ -179,7 +177,7 @@ if (file_exists("stacje.csv")) {
         
         /* --- LISTA PRODUKTÓW --- */
         .products-wrapper {
-            background-color: var(--bg-gray); /* ZMIANA NA SZARY */
+            background-color: var(--bg-gray);
             border: 2px solid var(--accent-green);
             border-radius: 6px; 
             overflow: hidden;
@@ -190,13 +188,12 @@ if (file_exists("stacje.csv")) {
             justify-content: space-between; 
             align-items: center; 
             padding: 15px; 
-            /* Linia oddzielająca produkty - też limonkowa, bo na szarym słabo widać szarą */
             border-bottom: 1px solid rgba(161, 208, 82, 0.3); 
             color: var(--text-white);
         }
         
         .product-item:last-child { border-bottom: none; }
-        .product-item:hover { background-color: rgba(255,255,255,0.05); } /* Lekkie rozjaśnienie po najechaniu */
+        .product-item:hover { background-color: rgba(255,255,255,0.05); }
         
         .product-info {
             flex-grow: 1;
@@ -214,11 +211,10 @@ if (file_exists("stacje.csv")) {
         .product-desc {
             display: block;
             font-size: 13px;
-            color: var(--text-desc); /* Jasnoszary opis */
+            color: var(--text-desc);
             font-style: italic;
         }
         
-        /* Pole ilości */
         .product-qty { 
             width: 70px !important; 
             text-align: center; 
@@ -226,9 +222,8 @@ if (file_exists("stacje.csv")) {
             border: 2px solid var(--accent-green) !important;
             font-weight: bold;
             font-size: 16px;
-            
-            background-color: var(--bg-gray); /* ZMIANA NA SZARY */
-            color: var(--text-white);         /* Biały tekst */
+            background-color: var(--bg-gray);
+            color: var(--text-white);
         }
 
         /* --- PRZYCISK --- */
@@ -263,7 +258,7 @@ if (file_exists("stacje.csv")) {
         @media (max-width: 480px) {
             .header-bar { padding: 10px; height: 70px; }
             .logo-img { height: 45px; } 
-            .card { padding: 15px; border-width: 1px; } /* Mniejsza ramka na tel */
+            .card { padding: 15px; border-width: 1px; } 
             .product-item { align-items: flex-start; }
             .product-qty { margin-top: 5px; }
         }
