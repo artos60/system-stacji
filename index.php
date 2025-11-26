@@ -2,17 +2,61 @@
 require 'config.php'; 
 
 // --- KONFIGURACJA PRODUKTÓW ---
+// Lista pobrana z Twojej strony (nazwy + opisy)
 $produkty_lista = [
-    "Płyn do spryskiwaczy zimowy 5L", 
-    "Olej silnikowy 5W40", 
-    "Hot-dog parówka", 
-    "Kawa ziarnista 1kg", 
-    "Rękawice robocze",
-    "Papier toaletowy (zgrzewka)", 
-    "Worki na śmieci 120L", 
-    "Płyn do podłóg", 
-    "Baterie AA (paczka)", 
-    "Żarówki H7"
+    [
+        "nazwa" => "TEC 2000 Engine Flush", 
+        "opis" => "Płukanka silnika"
+    ],
+    [
+        "nazwa" => "TEC 2000 Diesel System Cleaner", 
+        "opis" => "Dodatek do paliwa - Diesel (czyści wtryskiwacze i usuwa wodę)"
+    ],
+    [
+        "nazwa" => "TEC 2000 Fuel System Cleaner", 
+        "opis" => "Dodatek do paliwa - Benzyna (czyści wtryskiwacze i usuwa wodę)"
+    ],
+    [
+        "nazwa" => "TEC 2000 Oil Booster", 
+        "opis" => "Dodatek do oleju silnikowego"
+    ],
+    [
+        "nazwa" => "TEC 2000 Induction Cleaner", 
+        "opis" => "Czyszczenie dolotu powietrza - spray"
+    ],
+    [
+        "nazwa" => "TEC 2000 Airco Freshener", 
+        "opis" => "Granat antybakteryjny zapachowy - rozpylacz"
+    ],
+    [
+        "nazwa" => "TEC 2000 Diesel Injector Cleaner", 
+        "opis" => "Odblokowywanie i czyszczenie wtryskiwaczy - Diesel (trzeba pominąć zbiornik paliwa)"
+    ],
+    [
+        "nazwa" => "TEC 2000 Fuel Injector Cleaner", 
+        "opis" => "Odblokowywanie i czyszczenie wtryskiwaczy - Benzyna (trzeba pominąć zbiornik paliwa)"
+    ],
+    [
+        "nazwa" => "TEC 2000 Radiator Flush", 
+        "opis" => "Płukanie układu chłodzenia - odkamieniacz"
+    ],
+    [
+        "nazwa" => "TEC 2000 Radiator Stop Leak", 
+        "opis" => "Dodatek uszczelniający układ chłodzenia - można dolać do nowego płynu"
+    ],
+    // Duże opakowania 2.5L
+    [
+        "nazwa" => "TEC 2000 Engine Flush 2.5L", 
+        "opis" => "Płukanka silnika 2.5L (serwisowa)"
+    ],
+    [
+        "nazwa" => "TEC 2000 Diesel System Cleaner 2.5L", 
+        "opis" => "Dodatek do paliwa - Diesel 2.5L (czyści wtryskiwacze i usuwa wodę)"
+    ],
+    [
+        "nazwa" => "TEC 2000 Diesel Injector Flush 2.5L", 
+        "opis" => "Czyszczenie wtryskiwaczy maszyn budowlanych, rolniczych"
+    ]
 ];
 
 // Wczytywanie stacji z pliku CSV
@@ -22,7 +66,6 @@ if (file_exists("stacje.csv")) {
         while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
             $nazwa = isset($data[0]) ? $data[0] : "Stacja";
             $adres = isset($data[1]) ? $data[1] : "";
-            // Formatowanie: MIASTO (Ulica)
             $stacje[] = $nazwa . " (" . $adres . ")";
         }
         fclose($handle);
@@ -39,57 +82,58 @@ if (file_exists("stacje.csv")) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zamówienie Towaru - System Wewnętrzny</title>
     <style>
-        /* --- STYLISTYKA WATIS / TEZ --- */
+        /* --- KOLORYSTYKA (Dark Mode + Limonka) --- */
         :root {
-            --watis-red: #d71920; /* Czerwień firmowa */
-            --bg-color: #f4f6f8;
-            --text-color: #333;
+            --accent-green: #a1d052; /* Limonkowy */
+            --bg-dark: #667180;      /* Szaro-niebieskie tło */
+            --bg-card: #57606e;      /* Ciemniejsza karta */
+            --text-white: #ffffff;
+            --text-gray: #d0d0d0;    /* Kolor opisów */
         }
 
         body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            font-family: 'Oxygen', 'Segoe UI', sans-serif; 
             margin: 0; 
             padding: 0; 
-            background-color: var(--bg-color); 
-            color: var(--text-color);
+            background-color: var(--bg-dark); 
+            color: var(--text-white);
         }
 
         /* --- NAGŁÓWEK --- */
         .header-bar {
             background-color: #ffffff;
             padding: 10px 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             display: flex;
-            justify-content: space-between; /* Rozrzuca loga na lewo i prawo */
+            justify-content: space-between;
             align-items: center;
-            border-bottom: 4px solid var(--watis-red);
-            height: 80px; /* Zwiększyłem lekko wysokość dla większych logotypów */
+            border-bottom: 4px solid var(--accent-green);
+            height: 80px;
         }
 
         .logo-img {
-            height: 60px; /* Wysokość logotypów */
+            height: 60px;
             width: auto;
             object-fit: contain;
         }
 
         /* --- KONTENER GŁÓWNY --- */
         .container { 
-            max-width: 600px; 
+            max-width: 700px; /* Trochę szerszy dla dłuższych opisów */
             margin: 30px auto; 
             padding: 0 15px;
         }
 
         .card {
-            background: white;
+            background-color: var(--bg-card);
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            border-top: 5px solid var(--watis-red);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            border: 2px solid var(--accent-green);
         }
 
         h1 { 
             text-align: center; 
-            color: #333; 
+            color: var(--text-white); 
             font-size: 24px; 
             margin-bottom: 30px; 
             font-weight: 700;
@@ -104,7 +148,7 @@ if (file_exists("stacje.csv")) {
             display: block; 
             margin-bottom: 10px; 
             font-weight: 600; 
-            color: #444; 
+            color: var(--text-white);
             font-size: 14px;
             text-transform: uppercase;
         }
@@ -113,24 +157,23 @@ if (file_exists("stacje.csv")) {
             width: 100%; 
             padding: 14px; 
             font-size: 16px; 
-            border: 2px solid #e1e4e8; 
+            border: 2px solid var(--accent-green);
             border-radius: 6px; 
             box-sizing: border-box; 
-            background-color: #fbfbfb;
-            transition: all 0.3s;
+            background-color: #ffffff; 
+            color: #333;
         }
         
         select:focus, input:focus {
-            border-color: var(--watis-red);
-            background-color: #fff;
             outline: none;
+            box-shadow: 0 0 10px rgba(161, 208, 82, 0.5);
         }
         
         /* --- LISTA PRODUKTÓW --- */
         .products-wrapper {
-            background: #fff;
-            border: 2px solid #e1e4e8;
-            border-radius: 6px;
+            background: #ffffff;
+            border: 2px solid var(--accent-green);
+            border-radius: 6px; 
             overflow: hidden;
         }
 
@@ -138,31 +181,47 @@ if (file_exists("stacje.csv")) {
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            padding: 12px 15px; 
-            border-bottom: 1px solid #eee; 
-            transition: background 0.2s;
+            padding: 15px; 
+            border-bottom: 1px solid #ccc; 
+            color: #333;
         }
         
         .product-item:last-child { border-bottom: none; }
-        .product-item:hover { background-color: #fafafa; }
+        .product-item:hover { background-color: #f0f7e6; }
         
+        .product-info {
+            flex-grow: 1;
+            margin-right: 15px;
+        }
+
         .product-name { 
-            font-size: 15px; 
-            font-weight: 500;
+            display: block;
+            font-size: 16px; 
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 4px;
+        }
+
+        .product-desc {
+            display: block;
+            font-size: 13px;
+            color: #555;
+            font-style: italic;
         }
         
         .product-qty { 
             width: 70px !important; 
             text-align: center; 
-            padding: 8px !important; 
-            border: 1px solid #ccc !important;
+            padding: 10px !important; 
+            border: 2px solid var(--accent-green) !important;
             font-weight: bold;
-            color: var(--watis-red);
+            color: #333;
+            font-size: 16px;
         }
 
         /* --- PRZYCISK --- */
         button { 
-            background-color: var(--watis-red);
+            background-color: var(--accent-green);
             color: white; 
             padding: 18px; 
             border: none; 
@@ -171,26 +230,30 @@ if (file_exists("stacje.csv")) {
             cursor: pointer; 
             width: 100%; 
             border-radius: 6px; 
-            margin-top: 15px; 
+            margin-top: 25px; 
             text-transform: uppercase;
-            box-shadow: 0 4px 15px rgba(215, 25, 32, 0.3);
-            transition: transform 0.2s, background 0.3s;
+            box-shadow: 0 4px 0px #8eb846;
+            transition: transform 0.1s, box-shadow 0.1s;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
         }
         
         button:hover { 
-            background-color: #b01217; 
-            transform: translateY(-2px);
+            background-color: #94c04b; 
+            transform: translateY(2px);
+            box-shadow: 0 2px 0px #8eb846;
         }
         
         .footer-link { text-align: center; margin-top: 30px; margin-bottom: 50px;}
-        .footer-link a { color: #888; text-decoration: none; font-size: 13px; font-weight: 500; }
-        .footer-link a:hover { color: var(--watis-red); }
+        .footer-link a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 13px; font-weight: 500; }
+        .footer-link a:hover { color: var(--accent-green); }
 
         /* RWD */
         @media (max-width: 480px) {
             .header-bar { padding: 10px; height: 70px; }
-            .logo-img { height: 45px; } /* Mniejsze logo na telefonie */
-            .card { padding: 20px; }
+            .logo-img { height: 45px; } 
+            .card { padding: 15px; }
+            .product-item { align-items: flex-start; }
+            .product-qty { margin-top: 5px; }
         }
     </style>
 </head>
@@ -198,7 +261,6 @@ if (file_exists("stacje.csv")) {
 
     <div class="header-bar">
         <img src="img_logo_witas.jpg" alt="Logo WATIS" class="logo-img">
-        
         <img src="img_logo_tec2000.jpg" alt="Logo TEC 2000" class="logo-img">
     </div>
 
@@ -226,12 +288,15 @@ if (file_exists("stacje.csv")) {
                 </div>
 
                 <div class="form-group">
-                    <label>Lista produktów (wpisz ilość):</label>
+                    <label>Produkty (wpisz ilość):</label>
                     <div class="products-wrapper">
                         <?php foreach ($produkty_lista as $produkt): ?>
                             <div class="product-item">
-                                <span class="product-name"><?php echo htmlspecialchars($produkt); ?></span>
-                                <input type="number" class="product-qty" name="ilosc[<?php echo htmlspecialchars($produkt); ?>]" placeholder="0" min="0">
+                                <div class="product-info">
+                                    <span class="product-name"><?php echo htmlspecialchars($produkt['nazwa']); ?></span>
+                                    <span class="product-desc"><?php echo htmlspecialchars($produkt['opis']); ?></span>
+                                </div>
+                                <input type="number" class="product-qty" name="ilosc[<?php echo htmlspecialchars($produkt['nazwa']); ?>]" placeholder="0" min="0">
                             </div>
                         <?php endforeach; ?>
                     </div>
